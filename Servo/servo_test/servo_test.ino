@@ -1,13 +1,33 @@
 #include <Servo.h>
 
-const char PinServo = 2;
-const char pinEcho  = 4;
-const char pinTring = 3;
+// двигатели
 
+const char pinLeftEng    = 5;
+const char pinLeftEngFrd = 6;
+const char pinLeftEngBck = 7;
+
+const char pinRightEng    = 9;
+const char pinRightEngFrd = 10;
+const char pinRightEngBck = 8;
+
+const char ENG_MIN_SPEED = 150;
+const char ENG_MAX_SPEED = 250;
+
+
+const char PinServo = 2;
+const char pinEcho  = 3;
+const char pinTring = 4;
+
+// управление двигателем 
+enum Engine {enLeft, enRight};
+enum EngineCommand {ENG_FORWARD, ENG_BACKWARD, ENG_STOP};
+
+
+// текущий угол поварота радара
+int CurAngle;
 
 
 Servo ServoMotor;
-
 
 int Distance()
 {
@@ -26,30 +46,48 @@ int Distance()
   return mm;
 }
 
-
-void setup() {
-  // put your setup code here, to run once:
- ServoMotor.attach(PinServo);
- pinMode(LED_BUILTIN, OUTPUT);
+void WriteAngle(int Angle)
+{
+  const float TimeToOneAngle = 3.0;
+  ServoMotor.write(Angle);
+  delay(int(TimeToOneAngle * abs(CurAngle - Angle)));
+  CurAngle = Angle;
 }
 
-void loop() {
-  static int CurAngle = 0;
+int Radar(void)
+{
+  static char Direction = 1; 
+  int mm = 0;
+  if (CurAngle >= 135) Direction *= (-1);
+  if (CurAngle <= 45) Direction *= (-1);
+  
+  WriteAngle(CurAngle + 5 * Direction);
+  mm = Distance();
+  return mm;
+}
+
+void setup() {
+ ServoMotor.attach(PinServo);
+ CurAngle = 90;
+ ServoMotor.write(CurAngle);
+ delay(1000);  
+ pinMode(LED_BUILTIN, OUTPUT);
+
+ // инициализация портов для эхо локации
+ pinMode(pinTring, OUTPUT); 
+ pinMode(pinEcho,  INPUT); 
+
+ digitalWrite(pinTring, LOW); 
+ digitalWrite(pinEcho,  LOW); 
+}
+
+void loop() 
+{
   digitalWrite(LED_BUILTIN, LOW); 
-  ServoMotor.write(CurAngle);
-  delay(1000);  
-  CurAngle = 180;
-  
-  ServoMotor.write(CurAngle);
-  while (ServoMotor.read() <= (CurAngle-10))
+ /* if (Radar() <= 250) 
   {
-    delay(10);  
-  }
-  digitalWrite(LED_BUILTIN, HIGH); 
-  
- /* 
-  ServoMotor.write(180);
-  delay(350);
-  */
- 
+     digitalWrite(LED_BUILTIN, HIGH);    
+     delay(2000);  
+  } */
+
 }
