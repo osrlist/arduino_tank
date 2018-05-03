@@ -17,6 +17,8 @@ const char ENG_MAX_SPEED = 250;
 const char PinServo = 3;
 const char pinEcho  = 2;
 const char pinTring = 4;
+const char HeadForword = 80;
+
 
 // управление двигателем 
 enum Engine {enLeft, enRight};
@@ -138,18 +140,33 @@ void setup() {
  digitalWrite(pinRightEngBck, LOW);  
 }
 
+int mm = 0;
+
 void loop() 
 {
-  digitalWrite(LED_BUILTIN, LOW); 
+  //digitalWrite(LED_BUILTIN, LOW); 
 
 
- ManagerEngine(enLeft, ENG_FORWARD, 128);
- 
-  
+ /* ManagerEngine(enLeft, ENG_FORWARD, 128);
+ ManagerEngine(enRight, ENG_FORWARD, 128);
+*/
+
+ digitalWrite(LED_BUILTIN, LOW); 
+ delay(2000);  
+ WriteAngle(HeadForword);  
+
+ mm = Distance();
+
+ if (mm < 250)
+ {
+   digitalWrite(LED_BUILTIN, HIGH);   
+ }
+ delay(2000);  
+ /*
   if (Radar() <= 250) 
   {
      digitalWrite(LED_BUILTIN, HIGH);    
      delay(2000);  
   } 
-
+*/
 }
