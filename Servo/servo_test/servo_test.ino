@@ -112,10 +112,10 @@ void setup() {
  ServoMotor.attach(PinServo);
  pinMode(LED_BUILTIN, OUTPUT);
 
- CurAngle = 90;
+ CurAngle = HeadForword;
  ServoMotor.write(CurAngle);
  delay(1000);  
-
+ 
  
  // инициализация портов для эхо локации
  pinMode(pinTring, OUTPUT); 
@@ -142,26 +142,36 @@ void setup() {
 
 int mm = 0;
 
-void loop() 
-{
-  //digitalWrite(LED_BUILTIN, LOW); 
+/* mm = Radar();
+ if (mm > 100) // 10 cm 
+ {
+   ManagerEngine(enLeft,  ENG_FORWARD, ENG_MIN_SPEED);
+   ManagerEngine(enRight, ENG_FORWARD, ENG_MIN_SPEED);
+ }
+ else
+ {
+   ManagerEngine(enLeft,  ENG_STOP, 0);
+   ManagerEngine(enRight, ENG_STOP, 0);
+ }
+
+*/
 
 
  /* ManagerEngine(enLeft, ENG_FORWARD, 128);
  ManagerEngine(enRight, ENG_FORWARD, 128);
 */
 
- digitalWrite(LED_BUILTIN, LOW); 
- delay(2000);  
- WriteAngle(HeadForword);  
+ /*digitalWrite(LED_BUILTIN, LOW); 
 
+ delay(10);  
  mm = Distance();
 
  if (mm < 250)
  {
    digitalWrite(LED_BUILTIN, HIGH);   
+   delay(2000);  
  }
- delay(2000);  
+*/
  /*
   if (Radar() <= 250) 
   {
@@ -169,4 +179,30 @@ void loop()
      delay(2000);  
   } 
 */
+
+  //digitalWrite(LED_BUILTIN, LOW); 
+  
+void loop() 
+{
+  static int min_distance = 1000;
+  static int count_route_in_loop = 0;
+
+ 
+  if (count_route_in_loop < 18 ) {
+    int distance = Radar();
+    if (distance >= 10 && distance < min_distance ) {
+      min_distance = distance;
+      count_route_in_loop++;
+    }
+  } else {
+    if (min_distance < 50 ) {
+      ManagerEngine(enLeft,  ENG_FORWARD, ENG_MIN_SPEED + 30);
+      ManagerEngine(enRight, ENG_FORWARD, ENG_MIN_SPEED + 30);
+      min_distance = 0;
+      delay(1000);  
+      ManagerEngine(enLeft,  ENG_STOP, 0);
+      ManagerEngine(enRight, ENG_STOP, 0);
+      count_route_in_loop = 0;
+    }
+  }
 }
