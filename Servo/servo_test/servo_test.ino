@@ -48,6 +48,17 @@ int Distance()
   return mm;
 }
 
+int SmatrDistance() {
+  const int CountTry = 5;
+  int sum = 0;
+  int result = 0;
+  for (int i = 0; i < CountTry; i++ ) {
+    sum =+ Distance();
+  }
+  result = sum / CountTry;
+  return result;
+}
+
 void WriteAngle(int Angle)
 {
   const float TimeToOneAngle = 3.0;
@@ -55,6 +66,8 @@ void WriteAngle(int Angle)
   delay(int(TimeToOneAngle * abs(CurAngle - Angle)));
   CurAngle = Angle;
 }
+
+
 
 int Radar(void)
 {
@@ -64,7 +77,7 @@ int Radar(void)
   if (CurAngle <= 45) Direction *= (-1);
   
   WriteAngle(CurAngle + 5 * Direction);
-  mm = Distance();
+  mm = SmatrDistance();
   return mm;
 }
 
@@ -181,28 +194,42 @@ int mm = 0;
 */
 
   //digitalWrite(LED_BUILTIN, LOW); 
+
+void Blinc(int frequency) {
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(frequency);      
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(frequency);         
+  }
+  digitalWrite(LED_BUILTIN, LOW); 
+}
+ 
   
 void loop() 
 {
   static int min_distance = 1000;
   static int count_route_in_loop = 0;
 
- 
-  if (count_route_in_loop < 18 ) {
+  if (count_route_in_loop < 36 ) {
     int distance = Radar();
-    if (distance >= 10 && distance < min_distance ) {
+    if ( distance < min_distance ) {
       min_distance = distance;
-      count_route_in_loop++;
     }
+      count_route_in_loop++;
   } else {
-    if (min_distance < 50 ) {
+//    Blinc( 100 );    
+    count_route_in_loop = 0;
+    if (min_distance > 70 ) { // 70 cm
+//      Blinc( 100 );    
       ManagerEngine(enLeft,  ENG_FORWARD, ENG_MIN_SPEED + 30);
       ManagerEngine(enRight, ENG_FORWARD, ENG_MIN_SPEED + 30);
       min_distance = 0;
-      delay(1000);  
+      delay(300);  
       ManagerEngine(enLeft,  ENG_STOP, 0);
       ManagerEngine(enRight, ENG_STOP, 0);
       count_route_in_loop = 0;
     }
+    min_distance = 1000;
   }
 }
